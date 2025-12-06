@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/modelcontextprotocol/registry/internal/api"
 	v0 "github.com/modelcontextprotocol/registry/internal/api/handlers/v0"
 	"github.com/modelcontextprotocol/registry/internal/config"
@@ -79,14 +80,22 @@ func main() {
 
 	registryService = service.NewRegistryService(db, cfg)
 
-	// Import seed data if seed source is provided
-	if cfg.SeedFrom != "" {
-		log.Printf("Importing data from %s...", cfg.SeedFrom)
+	// Always import from local seed.json and clear database before import
+	{
+		log.Printf("Resetting servers table and importing data from ./data/seed.json...")
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 		defer cancel()
 
+		// Clear all servers from the database using a transaction
+		if err := db.InTransaction(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+			_, err := tx.Exec(txCtx, "DELETE FROM servers;")
+			return err
+		}); err != nil {
+			log.Printf("Failed to clear servers table: %v", err)
+		}
+
 		importerService := importer.NewService(registryService)
-		if err := importerService.ImportFromPath(ctx, cfg.SeedFrom); err != nil {
+		if err := importerService.ImportFromPath(ctx, "./data/seed.json"); err != nil {
 			log.Printf("Failed to import seed data: %v", err)
 		}
 	}

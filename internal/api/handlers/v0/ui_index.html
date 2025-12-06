@@ -107,12 +107,12 @@
             <h3 class="text-lg font-semibold mb-4">API Base URL</h3>
             <div class="space-y-2 mb-4">
                 <label class="flex items-center">
-                    <input type="radio" name="baseUrl" value="prod" class="mr-2" checked>
-                    <span>Production (registry.modelcontextprotocol.io)</span>
+                    <input type="radio" name="baseUrl" value="local" class="mr-2" checked>
+                    <span>Local (localhost:8080, loads from seed.json)</span>
                 </label>
                 <label class="flex items-center">
-                    <input type="radio" name="baseUrl" value="staging" class="mr-2">
-                    <span>Staging (staging.registry.modelcontextprotocol.io)</span>
+                    <input type="radio" name="baseUrl" value="custom" class="mr-2">
+                    <span>Custom</span>
                 </label>
                 <label class="flex items-center">
                     <input type="radio" name="baseUrl" value="local" class="mr-2">
@@ -147,14 +147,10 @@
 
         // Get base URL based on selection
         function getBaseUrl() {
-            const selection = localStorage.getItem('baseUrl') || 'prod';
+            const selection = localStorage.getItem('baseUrl') || 'local';
             const customUrl = localStorage.getItem('customUrl') || '';
 
             switch (selection) {
-                case 'prod':
-                    return 'https://registry.modelcontextprotocol.io';
-                case 'staging':
-                    return 'https://staging.registry.modelcontextprotocol.io';
                 case 'local':
                     return '';
                 case 'custom':
@@ -166,20 +162,16 @@
 
         // Get server display name
         function getServerName() {
-            const selection = localStorage.getItem('baseUrl') || 'prod';
+            const selection = localStorage.getItem('baseUrl') || 'local';
             const customUrl = localStorage.getItem('customUrl') || '';
 
             switch (selection) {
-                case 'prod':
-                    return 'Production';
-                case 'staging':
-                    return 'Staging';
                 case 'local':
                     return 'Local';
                 case 'custom':
                     return 'Custom';
                 default:
-                    return 'Production';
+                    return 'Local';
             }
         }
 
